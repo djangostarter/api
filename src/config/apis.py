@@ -1,12 +1,44 @@
-"""
-兼容导出：保留该模块以便后续扩展/迁移时不影响旧的 import 路径。
+from typing import Any, Mapping
 
-当前推荐直接使用：
-- from api.v1 import api_v1
-"""
+import orjson
+from django.conf import settings
+from django.http import HttpRequest
+from ninja import NinjaAPI, Swagger
+from ninja.renderers import JSONRenderer, BaseRenderer
+from django_starter.apis import router
+from apps.account.apis import router as account_router
+from apps.billing.apis import router as billing_router
+from apps.demo.apis import router as demo_router
+from apps.health.apis import router as health_router
 
-from api.v1 import api_v1
+
+class ORJSONRenderer(JSONRenderer):
+    def render(self, request: HttpRequest, data: Any, *, response_status: int) -> Any:
+        ret = {
+            'code': response_status,
+            'data': data,
+            'success': False
+        }
+
+        if isinstance(data, dict):
+            ret['message'] = data.pop('detail', '请求成功')
+
+        if 200 <= response_status < 300:
+            ret['success'] = True
+
+        return orjson.dumps(ret, **self.json_dumps_params)
 
 
-# 为了兼容早期的 `from config.apis import api` 写法
-api = api_v1
+api = NinjaAPI(
+    title=f'{settings.DJANGO_STARTER["project_info"]["name"]} APIs',
+    description=settings.DJANGO_STARTER["project_info"]["description"],
+    renderer=ORJSONRenderer(),
+    urls_namespace='api',
+    docs=Swagger(settings={"persistAuthorization": True})
+)
+
+api.add_router('django-starter', router)
+api.add_router('health', health_router)
+api.add_router('account', account_router)
+api.add_router('billing', billing_router)
+api.add_router('demo', demo_router)
