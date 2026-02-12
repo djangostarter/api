@@ -2,7 +2,7 @@ import json
 from django.test import TestCase
 from django.urls import reverse_lazy
 from apps.demo.models import Music
-from django_starter.contrib.seed import Seeder
+from django_starter_core.contrib.seed import Seeder
 
 
 # Create your tests here.

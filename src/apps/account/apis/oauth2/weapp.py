@@ -3,12 +3,13 @@ import requests
 from django.contrib.auth import login as django_login
 from django.contrib.auth.models import User
 from django.conf import settings
+from django_ratelimit.decorators import ratelimit
 from ninja import Router, Schema
 from ninja.errors import HttpError
 
-from django_starter.contrib.auth.models import UserClaim
-from django_starter.contrib.auth.services import generate_token
-from django_starter.http.response import responses
+from django_starter_core.contrib.auth.models import UserClaim
+from django_starter_core.contrib.auth.services import generate_token
+from django_starter_core.http.response import responses
 
 router = Router(tags=['weapp'])
 
@@ -20,6 +21,7 @@ class WeappLoginSchema(Schema):
     code: str
 
 
+@ratelimit(key="ip", rate="20/m", block=True)
 @router.post('/login', auth=None, summary='微信小程序认证')
 def login(request, payload: WeappLoginSchema):
     """
@@ -65,6 +67,6 @@ def login(request, payload: WeappLoginSchema):
     # 记录Django登录状态
     django_login(request, user)
 
-    token = generate_token({'username': user.username})
+    token = generate_token({'user_id': user.id, 'username': user.username})
 
     return responses.ok('登录成功', token.dict())

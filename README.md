@@ -17,13 +17,10 @@
 
 - **API-only**：不包含模板渲染与前端依赖，适合前后端分离或纯后端服务
 - **Django-Ninja**：类型校验 + 自动 OpenAPI 文档（Swagger UI）
-- **版本化路由**：约定所有接口挂载在 `/api/v1/` 下（便于后续扩展 v2）
-- **内置示例模块**
-  - `health`：健康检查接口
-  - `authentication`：JWT 鉴权骨架（用户名密码换 Token、受保护示例接口）
-  - `demo_crud`：最小 CRUD 示例
+- **路由聚合**：统一入口 `/api/`，按领域拆分 routers（account/billing/demo/health 等）
 - **复用 Core**：统一响应封装、JWT 生成/解析、Bearer 鉴权等能力来自 `django-starter-core`
-- **开箱即用的 CORS**：默认允许所有来源（开发友好，生产建议收紧）
+- **环境分层**：`DJANGO_ENV=development/testing/production`，production 默认安全收紧并校验关键环境变量
+- **可观测性基础**：health/ready/metrics + request-id 日志关联
 
 ## 运行环境
 
@@ -55,26 +52,26 @@ uv run python .\src\manage.py runserver
 
 4）打开 OpenAPI 文档：
 
-- http://127.0.0.1:8000/api/v1/docs
+- http://127.0.0.1:8000/api/docs
 
 ## 目录结构与约定
 
 本项目采用 “按领域拆分 apps + 统一 API 入口” 的组织方式：
 
 - `src/config/`：Django 工程配置（settings/urls/asgi/wsgi）
-- `src/api/v1.py`：API v1 入口（NinjaAPI 实例、异常处理、路由汇总）
+- `src/config/apis.py`：API 入口（NinjaAPI 实例、异常处理、路由汇总）
 - `src/apps/*`：业务模块（每个 app 自己管理 models/schemas/apis 等）
 
 路由挂载约定（见 `src/config/urls.py`）：
 
 - Django 管理后台：`/admin/`
-- 对外 API：`/api/v1/`
+- 对外 API：`/api/`
 
 ## 开发一个新接口（推荐方式）
 
 1）新建一个 Django app（例如 `apps/orders`）
 2）在 app 内新增一个 `apis.py`，暴露 `router = Router(...)`
-3）在 `src/api/v1.py` 中 `api_v1.add_router("/orders", orders_router)`
+3）在 `src/config/apis.py` 中 `api.add_router("orders", orders_router)`
 
 这样可以保证：
 
@@ -83,14 +80,16 @@ uv run python .\src\manage.py runserver
 
 ## 配置项与环境变量
 
-本项目大量配置支持用环境变量覆盖（见 `src/config/settings.py`），常用项如下：
+本项目大量配置支持用环境变量覆盖（见 `src/config/settings/*`），常用项如下：
 
 - `DJANGO_SECRET_KEY`：Django 密钥（生产务必设置）
-- `DJANGO_DEBUG`：`1`/`0`
-- `DJANGO_ALLOWED_HOSTS`：逗号分隔，默认 `*`
-- `DJANGO_DB_ENGINE`：默认 `django.db.backends.sqlite3`
-- `DJANGO_DB_NAME`：默认 `src/db.sqlite3`
-- `DJANGO_CORS_ALLOW_ALL_ORIGINS`：默认 `1`（生产建议改为白名单）
+- `DJANGO_ENV`：`development`/`testing`/`production`（默认 `development`）
+- `DJANGO_DEBUG`：`1`/`0`（production 将强制为 `0`）
+- `DJANGO_ALLOWED_HOSTS`：逗号分隔（production 必填）
+- `DJANGO_DB_ENGINE` / `DJANGO_DB_NAME` / `DJANGO_DB_HOST` / `DJANGO_DB_USER` / `DJANGO_DB_PASSWORD` / `DJANGO_DB_PORT`
+- `DJANGO_CORS_ALLOW_ALL_ORIGINS`：默认开发环境允许，production 建议关闭并改用白名单
+- `DJANGO_CORS_ALLOWED_ORIGINS`：逗号分隔白名单
+- `DJANGO_NINJA_DOCS_ENABLED`：是否开启 Swagger UI（默认开发开启，production 默认关闭）
 
 ## JWT 配置（与 Core 约定保持一致）
 
@@ -100,10 +99,11 @@ Core 的 JWT 逻辑读取 `settings.DJANGO_STARTER['auth']['jwt']`，本项目�
 - `DJANGO_JWT_SALT`：签名密钥（生产务必设置为强随机值，且不要提交到仓库）
 - `DJANGO_JWT_LIFETIME`：有效期（秒），默认 `3600`
 
-示例接口（见 `apps/authentication/apis.py`）：
+示例接口（见 `apps/account/apis/auth/apis.py`）：
 
-- `POST /api/v1/auth/token`：用户名密码换 JWT
-- `GET  /api/v1/auth/me`：受保护示例接口（Bearer Token）
+- `POST /api/account/auth/login`：用户名密码换 JWT
+- `POST /api/account/auth/register`：注册并换 JWT
+- `GET  /api/account/auth/current-user`：获取当前用户（Bearer Token）
 
 ## 与 django-starter-core 的联调方式（你开发 Core 时最重要）
 
@@ -121,3 +121,16 @@ django-starter-core = { path = "../django-starter-core", editable = true }
 ```bash
 uv run pytest
 ```
+
+## 基本检查
+
+```bash
+uv run python .\\src\\manage.py check
+```
+
+production 环境建议至少设置：
+
+- `DJANGO_ENV=production`
+- `DJANGO_SECRET_KEY`
+- `DJANGO_JWT_SALT`
+- `DJANGO_ALLOWED_HOSTS`

@@ -34,13 +34,18 @@ def get_logging_config(base_dir: str, app_name: str = 'djangostarter') -> dict:
     return {
         'version': 1,
         'disable_existing_loggers': False,
+        'filters': {
+            'request_id': {
+                '()': 'starter_api.logging_context.RequestIdFilter',
+            },
+        },
         'formatters': {
             'verbose': {
-                'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+                'format': '{levelname} {asctime} [{request_id}] {module} {process:d} {thread:d} {message}',
                 'style': '{',
             },
             'simple': {
-                'format': '{levelname} {asctime} {name} {message}',
+                'format': '{levelname} {asctime} [{request_id}] {name} {message}',
                 'style': '{',
             },
         },
@@ -48,7 +53,8 @@ def get_logging_config(base_dir: str, app_name: str = 'djangostarter') -> dict:
             'console': {
                 'level': 'INFO',
                 'class': 'logging.StreamHandler',
-                'formatter': 'simple'
+                'formatter': 'simple',
+                'filters': ['request_id'],
             },
             'file_app': {
                 'level': 'INFO',
@@ -57,6 +63,7 @@ def get_logging_config(base_dir: str, app_name: str = 'djangostarter') -> dict:
                 'maxBytes': 1024 * 1024 * 10,  # 10MB
                 'backupCount': 5,
                 'formatter': 'verbose',
+                'filters': ['request_id'],
             },
             'file_error': {
                 'level': 'ERROR',
@@ -65,6 +72,7 @@ def get_logging_config(base_dir: str, app_name: str = 'djangostarter') -> dict:
                 'maxBytes': 1024 * 1024 * 10,  # 10MB
                 'backupCount': 5,
                 'formatter': 'verbose',
+                'filters': ['request_id'],
             },
             'file_django': {
                 'level': 'INFO',
@@ -73,6 +81,7 @@ def get_logging_config(base_dir: str, app_name: str = 'djangostarter') -> dict:
                 'maxBytes': 1024 * 1024 * 10,  # 10MB
                 'backupCount': 3,
                 'formatter': 'verbose',
+                'filters': ['request_id'],
             },
             'mail_admins': {
                 'level': 'ERROR',
@@ -124,9 +133,14 @@ def get_debug_logging_config() -> dict:
     return {
         'version': 1,
         'disable_existing_loggers': False,
+        'filters': {
+            'request_id': {
+                '()': 'starter_api.logging_context.RequestIdFilter',
+            },
+        },
         'formatters': {
             'verbose': {
-                'format': '{levelname} {asctime} {name} {module} {funcName}:{lineno} {message}',
+                'format': '{levelname} {asctime} [{request_id}] {name} {module} {funcName}:{lineno} {message}',
                 'style': '{',
             },
         },
@@ -134,7 +148,8 @@ def get_debug_logging_config() -> dict:
             'console': {
                 'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
-                'formatter': 'verbose'
+                'formatter': 'verbose',
+                'filters': ['request_id'],
             },
         },
         'root': {

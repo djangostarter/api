@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
-from django_starter.http.response import responses
+from django_starter_core.http.response import responses
 
 from apps.demo.models import *
 from apps.demo.apis.music_album.schemas import *

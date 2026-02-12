@@ -2,12 +2,13 @@ import re
 from typing import Optional
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django_ratelimit.decorators import ratelimit
 from ninja.router import Router
 from ninja.errors import HttpError
 
-from django_starter.http.response import ResponseGenerator
-from django_starter.contrib.auth.services import generate_token, get_user
-from django_starter.contrib.auth.bearers import JwtBearer
+from django_starter_core.http.response import ResponseGenerator
+from django_starter_core.contrib.auth.services import generate_token
+from starter_api.auth import JwtBearer
 
 from apps.account.models import UserProfile
 from .schemas import LoginSchema, LoginToken, UserSchema, RegisterSchema
@@ -17,24 +18,26 @@ router = Router(tags=['auth'])
 _resp = ResponseGenerator(router=router)
 
 
+@ratelimit(key="ip", rate="30/m", block=True)
 @router.post('/login', auth=None, response={200: LoginToken}, url_name='account/auth/login')
 def login(request, data: LoginSchema):
     user: User = authenticate(username=data.username, password=data.password)
     if user is not None:
-        return _resp.ok(request, '登录成功', generate_token({'username': user.username}).dict())
+        return _resp.ok(request, '登录成功', generate_token({'user_id': user.id, 'username': user.username}).dict())
     else:
         raise HttpError(401, '用户名或密码错误')
 
 
 @router.get('/current-user', auth=JwtBearer(), response=UserSchema, url_name='account/auth/current_user')
 def current_user(request):
-    user = get_user(request)
-    if not user:
+    user = request.auth
+    if not user or not getattr(user, "is_authenticated", False):
         raise HttpError(401, '未登录或用户不存在！')
 
     return user
 
 
+@ratelimit(key="ip", rate="20/m", block=True)
 @router.post('/register', url_name='account/auth/register')
 def register(request, data: RegisterSchema):
     if User.objects.filter(username=data.username).exists():
@@ -65,4 +68,4 @@ def register(request, data: RegisterSchema):
 
     user_obj.profile.save()
 
-    return _resp.ok(request, '注册成功！', generate_token({'username': user_obj.username}).dict())
+    return _resp.ok(request, '注册成功！', generate_token({'user_id': user_obj.id, 'username': user_obj.username}).dict())

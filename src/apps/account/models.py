@@ -3,8 +3,8 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
-from django_starter.contrib.auth.models import UserProfileAbstract
-from django_starter.utilities import table_name_wrapper
+from django_starter_core.contrib.auth.models import UserProfileAbstract
+from django_starter_core.utilities import table_name_wrapper
 
 
 # Create your models here.

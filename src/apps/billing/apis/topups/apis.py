@@ -3,9 +3,8 @@ from decimal import Decimal
 from ninja.router import Router
 from ninja.errors import HttpError
 
-from django_starter.contrib.auth.bearers import JwtBearer
-from django_starter.contrib.auth.services import get_user
-from django_starter.http.response.responses import ResponseGenerator
+from starter_api.auth import JwtBearer
+from django_starter_core.http.response.responses import ResponseGenerator
 
 from apps.billing.models import TopUp, TopUpChannel, TopUpStatus
 from apps.billing.services import create_topup
@@ -18,8 +17,8 @@ _resp = ResponseGenerator(router=router)
 
 @router.get('', auth=JwtBearer(), response=list[TopUpOut], url_name='billing/topups/list')
 def list_topups(request):
-    user = get_user(request)
-    if not user:
+    user = request.auth
+    if not user or not getattr(user, "is_authenticated", False):
         raise HttpError(401, '未登录或用户不存在！')
 
     qs = TopUp.objects.filter(user_id=user.id).order_by('-id')[:50]
@@ -39,8 +38,8 @@ def list_topups(request):
 
 @router.post('', auth=JwtBearer(), response=TopUpOut, url_name='billing/topups/create')
 def create_user_topup(request, payload: CreateTopUpIn):
-    user = get_user(request)
-    if not user:
+    user = request.auth
+    if not user or not getattr(user, "is_authenticated", False):
         raise HttpError(401, '未登录或用户不存在！')
 
     if payload.amount <= Decimal('0'):
@@ -74,8 +73,8 @@ def create_user_topup(request, payload: CreateTopUpIn):
 
 @router.post('/admin-credit', auth=JwtBearer(), url_name='billing/topups/admin_credit')
 def admin_credit(request, payload: AdminCreditIn):
-    user = get_user(request)
-    if not user:
+    user = request.auth
+    if not user or not getattr(user, "is_authenticated", False):
         raise HttpError(401, '未登录或用户不存在！')
     if not user.is_staff:
         return _resp.forbidden(request, '无权限执行后台充值')
@@ -98,4 +97,3 @@ def admin_credit(request, payload: AdminCreditIn):
         reference='admin-api',
     )
     return _resp.ok(request, '充值成功', {'topup_id': topup.id})
-

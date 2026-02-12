@@ -1,5 +1,5 @@
 from django.db import models
-from django_starter.db.models import ModelExt
+from django_starter_core.db.models import ModelExt
 from simple_history.models import HistoricalRecords
 
 

@@ -1,8 +1,7 @@
 from ninja.router import Router
 from ninja.errors import HttpError
 
-from django_starter.contrib.auth.bearers import JwtBearer
-from django_starter.contrib.auth.services import get_user
+from starter_api.auth import JwtBearer
 
 from apps.billing.services import get_or_create_wallet, get_current_subscription
 from .schemas import BalanceOut, WalletOut, CurrentSubscriptionOut
@@ -13,8 +12,8 @@ router = Router(tags=['wallet'])
 
 @router.get('/balance', auth=JwtBearer(), response=BalanceOut, url_name='billing/wallet/balance')
 def balance(request):
-    user = get_user(request)
-    if not user:
+    user = request.auth
+    if not user or not getattr(user, "is_authenticated", False):
         raise HttpError(401, '未登录或用户不存在！')
 
     wallet = get_or_create_wallet(user_id=user.id, currency='CNY')
@@ -34,4 +33,3 @@ def balance(request):
         wallet=WalletOut(id=wallet.id, currency=wallet.currency, balance=wallet.balance),
         subscription=subscription_out,
     )
-

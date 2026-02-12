@@ -1,6 +1,5 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
-from django_starter.contrib.admin.tags import html_tags
 
 from .models import *
 

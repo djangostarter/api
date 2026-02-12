@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.forms.models import BaseInlineFormSet
-from django_starter.contrib.admin.admin import UserAdmin
+from django_starter_core.contrib.admin.admin import UserAdmin
 from .models import UserProfile
 
 

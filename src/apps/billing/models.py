@@ -8,8 +8,8 @@ from django.db.models import Q
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 
-from django_starter.db.models import ModelExt
-from django_starter.utilities import table_name_wrapper
+from django_starter_core.db.models import ModelExt
+from django_starter_core.utilities import table_name_wrapper
 
 
 class BillingCycle(models.TextChoices):

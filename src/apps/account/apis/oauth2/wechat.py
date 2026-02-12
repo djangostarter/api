@@ -2,7 +2,7 @@ from django.conf import settings
 from ninja import Router
 from wechatpy.oauth import WeChatOAuth
 
-from django_starter.http.response import responses
+from django_starter_core.http.response import responses
 
 router = Router(tags=['wechat'])
 

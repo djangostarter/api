@@ -1,6 +1,6 @@
 from typing import Dict, Any, List
 from config.settings.components.common import DOCKER, DEBUG
-from django_starter.contrib.cache import CacheBackendSpec, get_django_cache_settings
+from django_starter_core.contrib.cache import CacheBackendSpec, get_django_cache_settings
 
 
 # =============================================================================

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 
-from django_starter.contrib.auth.models import UserClaim
+from django_starter_core.contrib.auth.models import UserClaim
 
 
 def _oauth2_settings(**overrides):

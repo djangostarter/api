@@ -7,14 +7,19 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-starter-api-insecure-de
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # 读取环境变量判断是否开启Debug模式，无须手动设置
-DEBUG = os.environ.get('DEBUG', 'true') == 'true'
+_debug_raw = os.environ.get("DJANGO_DEBUG", os.environ.get("DEBUG", "true")).strip().lower()
+DEBUG = _debug_raw in {"1", "true", "yes", "y", "on"}
 
 # 读取环境变量判断是否docker环境，无须手动设置
 DOCKER = os.environ.get('ENVIRONMENT', 'default') == 'docker'
 
 URL_PREFIX = ""
 
-ALLOWED_HOSTS = ['*']
+_allowed_hosts_raw = os.environ.get("DJANGO_ALLOWED_HOSTS", "").strip()
+if _allowed_hosts_raw:
+    ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts_raw.split(",") if h.strip()]
+else:
+    ALLOWED_HOSTS = ["*"] if DEBUG else []
 
 ROOT_URLCONF = 'config.urls'
 

@@ -15,16 +15,16 @@ INSTALLED_APPS: Tuple[str, ...] = (
     'django.contrib.staticfiles',
 
     # DjangoStarter组件
-    'django_starter.contrib.about',
-    'django_starter.contrib.admin',
-    'django_starter.contrib.auth',
-    'django_starter.contrib.code_generator',
-    'django_starter.contrib.config',
-    'django_starter.contrib.docs',
-    'django_starter.contrib.guide',
-    'django_starter.contrib.navbar',
-    'django_starter.contrib.notifications',
-    'django_starter.contrib.seed',
+    'django_starter_core.contrib.about',
+    'django_starter_core.contrib.admin',
+    'django_starter_core.contrib.auth',
+    'django_starter_core.contrib.code_generator',
+    'django_starter_core.contrib.config',
+    'django_starter_core.contrib.docs',
+    'django_starter_core.contrib.guide',
+    'django_starter_core.contrib.navbar',
+    'django_starter_core.contrib.notifications',
+    'django_starter_core.contrib.seed',
 
     # 第三方组件
     'captcha',

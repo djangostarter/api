@@ -10,10 +10,10 @@ monitoring_root_enabled = os.environ.get("MONITORING_ROOT_ENDPOINTS_ENABLED", "t
 
 urlpatterns = [
     path('api/', api.urls),
-    path('monitoring/', include('django_starter.contrib.monitoring.urls')),
+    path('monitoring/', include('django_starter_core.contrib.monitoring.urls')),
 
     # 管理后台
-    path('admin/', include('django_starter.contrib.admin.urls')),  # 实现 admin 登录验证码
+    path('admin/', include('django_starter_core.contrib.admin.urls')),  # 实现 admin 登录验证码
     path('admin/', admin.site.urls),
 
     # 验证码

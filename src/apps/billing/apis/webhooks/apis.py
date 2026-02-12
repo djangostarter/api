@@ -1,6 +1,6 @@
 from ninja.router import Router
 
-from django_starter.http.response.responses import ResponseGenerator
+from django_starter_core.http.response.responses import ResponseGenerator
 
 from apps.billing.providers.registry import get_provider
 
@@ -19,4 +19,3 @@ def stripe_webhook(request):
 def alipay_webhook(request):
     provider = get_provider('alipay')
     return _resp.error(request, '支付宝 Notify 尚未接入', {'provider': provider.code})
-
