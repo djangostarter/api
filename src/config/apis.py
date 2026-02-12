@@ -11,6 +11,7 @@ from apps.account.apis import router as account_router
 from apps.billing.apis import router as billing_router
 from apps.demo.apis import router as demo_router
 from apps.health.apis import router as health_router
+from apps.integrations.apis import router as integrations_router
 import logging
 
 
@@ -22,8 +23,15 @@ class ORJSONRenderer(JSONRenderer):
             'success': False
         }
 
+        message = None
         if isinstance(data, dict):
-            ret['message'] = data.pop('detail', '请求成功')
+            message = data.get('detail')
+            ret['data'] = {k: v for k, v in data.items() if k != 'detail'}
+
+        if message is None:
+            message = '请求成功' if 200 <= response_status < 300 else '请求失败'
+
+        ret['message'] = message
 
         if 200 <= response_status < 300:
             ret['success'] = True
@@ -84,3 +92,4 @@ api.add_router('health', health_router)
 api.add_router('account', account_router)
 api.add_router('billing', billing_router)
 api.add_router('demo', demo_router)
+api.add_router('integrations', integrations_router)

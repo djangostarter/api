@@ -40,4 +40,5 @@ INSTALLED_APPS: Tuple[str, ...] = (
     'apps.billing.apps.BillingConfig',
     'apps.demo',
     'apps.health.apps.HealthConfig',
+    'apps.integrations.apps.IntegrationsConfig',
 )

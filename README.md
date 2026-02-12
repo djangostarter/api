@@ -75,7 +75,7 @@ uv run python .\src\manage.py runserver
 
 这样可以保证：
 
-- API 入口集中可读（`api/v1.py`）
+- API 入口集中可读（`src/config/apis.py`）
 - 业务模块自治（各自 schemas/models/apis）
 
 ## 配置项与环境变量
@@ -90,6 +90,8 @@ uv run python .\src\manage.py runserver
 - `DJANGO_CORS_ALLOW_ALL_ORIGINS`：默认开发环境允许，production 建议关闭并改用白名单
 - `DJANGO_CORS_ALLOWED_ORIGINS`：逗号分隔白名单
 - `DJANGO_NINJA_DOCS_ENABLED`：是否开启 Swagger UI（默认开发开启，production 默认关闭）
+- `DJANGO_TRUST_X_FORWARDED_FOR`：是否信任 `X-Forwarded-For` 获取客户端真实 IP（生产默认 true，建议配合可信代理）
+- `PROMETHEUS_ENABLED`：是否启用 Prometheus 中间件（开启后配合 `/monitoring/metrics` 使用）
 
 ## JWT 配置（与 Core 约定保持一致）
 
@@ -105,6 +107,37 @@ Core 的 JWT 逻辑读取 `settings.DJANGO_STARTER['auth']['jwt']`，本项目�
 - `POST /api/account/auth/register`：注册并换 JWT
 - `GET  /api/account/auth/current-user`：获取当前用户（Bearer Token）
 
+## 第三方应用鉴权（AppClient API Key，可选）
+
+本项目在保留现有 JWT（面向用户/后台）鉴权的基础上，额外提供一套 **AppClient（第三方应用）** 的鉴权 + 授权能力，用于“对外开放部分接口给第三方系统调用”的场景。
+
+关键点：
+
+- 这是可选鉴权方式，不替代 JWT。
+- 支持三种携带方式：Query/Header/Bearer。
+- 支持 IP 白名单（单 IP / CIDR）与 scopes（最小权限）授权控制。
+
+### Key 格式
+
+统一使用 `key_id.secret` 格式（服务端仅保存 secret 的哈希）：
+
+- Header：`X-API-Key: <key_id>.<secret>`
+- Bearer：`Authorization: Bearer <key_id>.<secret>`
+- Query：`?api_key=<key_id>.<secret>`
+
+### 创建 AppClient
+
+```bash
+uv run python .\\src\\manage.py create_app_client --app-id third-party-demo --app-name \"Third Party Demo\" --scopes project:read
+```
+
+该命令会输出一次性 API key（仅创建时展示，服务端不会保存明文 secret）。
+
+### 示例接口
+
+- `GET /api/integrations/third-party/ping`（Header API Key）
+- `GET /api/integrations/third-party/projects`（需要 scope：`project:read`）
+
 ## 与 django-starter-core 的联调方式（你开发 Core 时最重要）
 
 本项目默认启用了 uv 的 “本地路径 editable 覆盖”，这样你在同一工作区修改 Core 代码时，无需发布即可在 API 项目中实时生效：
@@ -119,7 +152,7 @@ django-starter-core = { path = "../django-starter-core", editable = true }
 ## 运行测试
 
 ```bash
-uv run pytest
+uv run python -m pytest
 ```
 
 ## 基本检查

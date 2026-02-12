@@ -25,4 +25,7 @@ ROOT_URLCONF = 'config.urls'
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+_trust_xff_raw = os.environ.get("DJANGO_TRUST_X_FORWARDED_FOR", "false").strip().lower()
+TRUST_X_FORWARDED_FOR = _trust_xff_raw in {"1", "true", "yes", "y", "on"}
+
 
