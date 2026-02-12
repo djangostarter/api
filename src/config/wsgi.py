@@ -1,5 +1,5 @@
 """
-WSGI config for DjangoRails project.
+WSGI config for DjangoStarter API project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

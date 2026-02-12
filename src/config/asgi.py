@@ -1,5 +1,5 @@
 """
-ASGI config for DjangoRails project.
+ASGI config for DjangoStarter API project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

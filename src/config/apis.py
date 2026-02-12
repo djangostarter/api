@@ -1,6 +1,7 @@
 from typing import Any, Mapping
 
 import orjson
+import os
 from django.conf import settings
 from django.http import HttpRequest
 from ninja import NinjaAPI, Swagger
@@ -87,7 +88,11 @@ def _handle_unhandled_error(request: HttpRequest, exc: Exception):
         status=500,
     )
 
-api.add_router('django-starter', router)
+_core_prefix = os.environ.get("DJANGO_STARTER_API_PREFIX", "django-starter").strip().strip("/")
+if not _core_prefix:
+    _core_prefix = "django-starter"
+
+api.add_router(_core_prefix, router)
 api.add_router('health', health_router)
 api.add_router('account', account_router)
 api.add_router('billing', billing_router)

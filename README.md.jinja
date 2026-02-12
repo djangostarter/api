@@ -1,16 +1,16 @@
-# DjangoStarter API（django-starter-api）
+# {{ project_title }}（{{ package_name }}）
 
-`django-starter-api` 是一个专注于 **纯 API（Headless）开发** 的 Django + Django-Ninja 起手架：保留 Django 的成熟生态与工程化能力，同时提供 FastAPI 风格的类型安全 API、OpenAPI 文档与清晰的模块边界。
+`{{ package_name }}` 是一个专注于 **纯 API（Headless）开发** 的 Django + Django-Ninja 起手架：保留 Django 的成熟生态与工程化能力，同时提供 FastAPI 风格的类型安全 API、OpenAPI 文档与清晰的模块边界。
 
 它的定位是 DjangoStarter “三段式分发”中的 **API-only 模板**：
 
 - Core：`django-starter-core`（可复用底座能力）
-- API-only：`django-starter-api`（本项目，仅接口，不含前端）
+- API-only：`{{ package_name }}`（本项目，仅接口，不含前端）
 - Web：`django-starter-web`（全栈模板，模板渲染 + 前端构建链路）
 
 > 包名与 import 命名空间说明：
 >
-> - 安装包名（PyPI / 依赖声明）：`django-starter-api`、`django-starter-core`
+> - 安装包名（PyPI / 依赖声明）：`{{ package_name }}`、`django-starter-core`
 > - Core 的 Python import 命名空间：`django_starter_core`
 
 ## 特性
@@ -26,27 +26,11 @@
 
 见 `pyproject.toml`：
 
-- Python：`==3.14.*`
+- Python：`{{ python_requires }}`
 - Django：`django[argon2]>=6.0`
 - Django-Ninja：`>=1.5.3`
 
-## 作为 Copier 模板使用
-
-本仓库已内置 Copier 模板配置（见 [copier.yml](file:///c:/code/django-starter/django-starter-api/copier.yml)）。推荐将本仓库作为“模板仓库”使用，通过 Copier 生成新的 API 项目目录。
-
-示例（PowerShell）：
-
-```powershell
-copier copy . C:\code\my-api
-```
-
-生成后的项目中：
-
-- `README.md` 会从 [README.md.jinja](file:///c:/code/django-starter/django-starter-api/README.md.jinja) 渲染生成
-- `pyproject.toml` 会从 [pyproject.toml.jinja](file:///c:/code/django-starter/django-starter-api/pyproject.toml.jinja) 渲染生成
-- 会生成 `.copier-answers.yml` 用于后续 `copier update`
-
-## 快速开始（本仓库）
+## 快速开始
 
 1）安装依赖：
 
@@ -83,17 +67,6 @@ uv run python .\src\manage.py runserver
 - Django 管理后台：`/admin/`
 - 对外 API：`/api/`
 
-## 开发一个新接口（推荐方式）
-
-1）新建一个 Django app（例如 `apps/orders`）
-2）在 app 内新增一个 `apis.py`，暴露 `router = Router(...)`
-3）在 `src/config/apis.py` 中 `api.add_router("orders", orders_router)`
-
-这样可以保证：
-
-- API 入口集中可读（`src/config/apis.py`）
-- 业务模块自治（各自 schemas/models/apis）
-
 ## 配置项与环境变量
 
 本项目大量配置支持用环境变量覆盖（见 `src/config/settings/*`），常用项如下：
@@ -109,6 +82,12 @@ uv run python .\src\manage.py runserver
 - `DJANGO_TRUST_X_FORWARDED_FOR`：是否信任 `X-Forwarded-For` 获取客户端真实 IP（生产默认 true，建议配合可信代理）
 - `PROMETHEUS_ENABLED`：是否启用 Prometheus 中间件（开启后配合 `/monitoring/metrics` 使用）
 
+### DjangoStarter 路由前缀
+
+本项目会把 Core 路由挂载到 `/api/<prefix>/...` 下，其中 `<prefix>` 默认是 `{{ api_prefix }}`，可用环境变量覆盖：
+
+- `DJANGO_STARTER_API_PREFIX`：默认 `{{ api_prefix }}`
+
 ## JWT 配置（与 Core 约定保持一致）
 
 Core 的 JWT 逻辑读取 `settings.DJANGO_STARTER['auth']['jwt']`，本项目已在 settings 中提供同结构配置，并暴露以下环境变量：
@@ -123,47 +102,18 @@ Core 的 JWT 逻辑读取 `settings.DJANGO_STARTER['auth']['jwt']`，本项目�
 - `POST /api/account/auth/register`：注册并换 JWT
 - `GET  /api/account/auth/current-user`：获取当前用户（Bearer Token）
 
-## 第三方应用鉴权（AppClient API Key，可选）
+## 与 django-starter-core 的联调方式
 
-本项目在保留现有 JWT（面向用户/后台）鉴权的基础上，额外提供一套 **AppClient（第三方应用）** 的鉴权 + 授权能力，用于“对外开放部分接口给第三方系统调用”的场景。
-
-关键点：
-
-- 这是可选鉴权方式，不替代 JWT。
-- 支持三种携带方式：Query/Header/Bearer。
-- 支持 IP 白名单（单 IP / CIDR）与 scopes（最小权限）授权控制。
-
-### Key 格式
-
-统一使用 `key_id.secret` 格式（服务端仅保存 secret 的哈希）：
-
-- Header：`X-API-Key: <key_id>.<secret>`
-- Bearer：`Authorization: Bearer <key_id>.<secret>`
-- Query：`?api_key=<key_id>.<secret>`
-
-### 创建 AppClient
-
-```bash
-uv run python .\\src\\manage.py create_app_client --app-id third-party-demo --app-name \"Third Party Demo\" --scopes project:read
-```
-
-该命令会输出一次性 API key（仅创建时展示，服务端不会保存明文 secret）。
-
-### 示例接口
-
-- `GET /api/integrations/third-party/ping`（Header API Key）
-- `GET /api/integrations/third-party/projects`（需要 scope：`project:read`）
-
-## 与 django-starter-core 的联调方式（你开发 Core 时最重要）
-
-本项目默认启用了 uv 的 “本地路径 editable 覆盖”，这样你在同一工作区修改 Core 代码时，无需发布即可在 API 项目中实时生效：
+{% if use_local_core -%}
+本项目已启用 uv 的 “本地路径 editable 覆盖”，适用于你在同一工作区联调 Core：
 
 ```toml
 [tool.uv.sources]
-django-starter-core = { path = "../django-starter-core", editable = true }
+django-starter-core = { path = "{{ core_local_path }}", editable = true }
 ```
-
-发布/交付给用户时，一般只保留正常的版本依赖（例如 `django-starter-core>=0.1.0`），让用户通过升级版本号跟随 Core 迭代。
+{% else -%}
+默认使用发布版依赖（例如 `django-starter-core>=0.1.0`）。如果你需要在同一工作区联调 Core，可以在 `pyproject.toml` 中加入 `tool.uv.sources` 的本地路径覆盖。
+{% endif %}
 
 ## 运行测试
 

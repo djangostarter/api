@@ -1,0 +1,69 @@
+[project]
+name = "{{ package_name }}"
+version = "0.1.0"
+description = "{{ package_description }}"
+authors = [
+    {name = "{{ author_name }}", email = "{{ author_email }}"},
+]
+dependencies = [
+    "django[argon2]>=6.0",
+    "django-ninja>=1.5.3",
+    "django-cors-headers>=4.9.0",
+    "django-split-settings>=1.3.2",
+    "django-simple-history>=3.11.0",
+    "django-otp>=1.6.1",
+    "django-allauth>=0.63.0",
+    "django-simple-captcha>=0.6.3",
+    "django-multi-captcha-admin>=2.0.0",
+    "django-ratelimit>=4.1.0",
+    "django-redis>=6.0.0",
+    "django-watchfiles>=1.4.0",
+    "django-jazzmin>=3.0.1",
+    "redis>=7.1.0",
+    "requests>=2.32.5",
+    "orjson>=3.11.5",
+    "pydantic>=2.12.5",
+    "pyjwt>=2.10.1",
+    "pycryptodome>=3.23.0",
+    "prometheus-client>=0.24.1",
+    "pillow>=12.1.0",
+    "qrcode>=8.0",
+    "jinja2>=3.1.6",
+    "markdown>=3.7",
+    "tblib>=3.2.2",
+    "wechatpy>=1.8.18",
+    "daphne>=4.2.1",
+    "django-starter-core>=0.1.0",
+]
+requires-python = "{{ python_requires }}"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.scripts]
+ds-test = "infra.runtests:main"
+
+[dependency-groups]
+dev = [
+    "django-debug-toolbar>=6.1.0",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pytest-django>=4.11.1",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+{% if use_local_core -%}
+[tool.uv.sources]
+django-starter-core = { path = "{{ core_local_path }}", editable = true }
+{% endif %}
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/apps", "src/config", "src/infra"]
