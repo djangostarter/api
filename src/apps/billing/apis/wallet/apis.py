@@ -1,7 +1,7 @@
 from ninja.router import Router
 from ninja.errors import HttpError
 
-from starter_api.auth import JwtBearer
+from infra.auth import JwtBearer
 
 from apps.billing.services import get_or_create_wallet, get_current_subscription
 from .schemas import BalanceOut, WalletOut, CurrentSubscriptionOut

@@ -3,7 +3,7 @@ from decimal import Decimal
 from ninja.router import Router
 from ninja.errors import HttpError
 
-from starter_api.auth import JwtBearer
+from infra.auth import JwtBearer
 from django_starter_core.http.response.responses import ResponseGenerator
 
 from apps.billing.models import TopUp, TopUpChannel, TopUpStatus

@@ -3,7 +3,7 @@ from typing import Tuple
 
 MIDDLEWARE: Tuple[str, ...] = (
     'django.middleware.security.SecurityMiddleware',
-    'starter_api.middleware.request_id.RequestIdMiddleware',
+    'infra.middleware.request_id.RequestIdMiddleware',
     'django.middleware.csp.ContentSecurityPolicyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -18,4 +18,4 @@ MIDDLEWARE: Tuple[str, ...] = (
 )
 
 if os.environ.get('PROMETHEUS_ENABLED', 'false') == 'true':
-    MIDDLEWARE = MIDDLEWARE + ('starter_api.middleware.prometheus.PrometheusMiddleware',)
+    MIDDLEWARE = MIDDLEWARE + ('infra.middleware.prometheus.PrometheusMiddleware',)

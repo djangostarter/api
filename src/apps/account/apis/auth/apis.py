@@ -8,7 +8,7 @@ from ninja.errors import HttpError
 
 from django_starter_core.http.response import ResponseGenerator
 from django_starter_core.contrib.auth.services import generate_token
-from starter_api.auth import JwtBearer
+from infra.auth import JwtBearer
 
 from apps.account.models import UserProfile
 from .schemas import LoginSchema, LoginToken, UserSchema, RegisterSchema

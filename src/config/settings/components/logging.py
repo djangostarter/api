@@ -36,7 +36,7 @@ def get_logging_config(base_dir: str, app_name: str = 'djangostarter') -> dict:
         'disable_existing_loggers': False,
         'filters': {
             'request_id': {
-                '()': 'starter_api.logging_context.RequestIdFilter',
+                '()': 'infra.logging_context.RequestIdFilter',
             },
         },
         'formatters': {
@@ -135,7 +135,7 @@ def get_debug_logging_config() -> dict:
         'disable_existing_loggers': False,
         'filters': {
             'request_id': {
-                '()': 'starter_api.logging_context.RequestIdFilter',
+                '()': 'infra.logging_context.RequestIdFilter',
             },
         },
         'formatters': {

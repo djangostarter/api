@@ -2,7 +2,7 @@ import uuid
 
 from django.http import HttpRequest
 
-from starter_api.logging_context import set_request_id
+from infra.logging_context import set_request_id
 
 
 class RequestIdMiddleware:
