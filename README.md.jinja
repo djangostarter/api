@@ -88,6 +88,15 @@ uv run python .\src\manage.py runserver
 
 - `DJANGO_STARTER_API_PREFIX`：默认 `{{ api_prefix }}`
 
+### 可选业务模块开关
+
+本项目的部分业务模块可以通过环境变量开关控制是否挂载路由与是否加入 `INSTALLED_APPS`：
+
+- `DJANGO_STARTER_ENABLE_ACCOUNT_API`：默认 `{{ "true" if enable_account_api else "false" }}`
+- `DJANGO_STARTER_ENABLE_BILLING_API`：默认 `{{ "true" if enable_billing_api else "false" }}`
+- `DJANGO_STARTER_ENABLE_DEMO_API`：默认 `{{ "true" if enable_demo_api else "false" }}`
+- `DJANGO_STARTER_ENABLE_INTEGRATIONS_API`：默认 `{{ "true" if enable_integrations_api else "false" }}`
+
 ## JWT 配置（与 Core 约定保持一致）
 
 Core 的 JWT 逻辑读取 `settings.DJANGO_STARTER['auth']['jwt']`，本项目已在 settings 中提供同结构配置，并暴露以下环境变量：

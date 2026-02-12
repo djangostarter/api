@@ -108,6 +108,11 @@ uv run python .\src\manage.py runserver
 - `DJANGO_NINJA_DOCS_ENABLED`：是否开启 Swagger UI（默认开发开启，production 默认关闭）
 - `DJANGO_TRUST_X_FORWARDED_FOR`：是否信任 `X-Forwarded-For` 获取客户端真实 IP（生产默认 true，建议配合可信代理）
 - `PROMETHEUS_ENABLED`：是否启用 Prometheus 中间件（开启后配合 `/monitoring/metrics` 使用）
+- `DJANGO_STARTER_API_PREFIX`：Core 路由挂载前缀（默认 `django-starter`）
+- `DJANGO_STARTER_ENABLE_ACCOUNT_API`：是否启用 account 模块（默认开启）
+- `DJANGO_STARTER_ENABLE_BILLING_API`：是否启用 billing 模块（默认开启）
+- `DJANGO_STARTER_ENABLE_DEMO_API`：是否启用 demo 模块（默认开启）
+- `DJANGO_STARTER_ENABLE_INTEGRATIONS_API`：是否启用 integrations 模块（默认开启）
 
 ## JWT 配置（与 Core 约定保持一致）
 

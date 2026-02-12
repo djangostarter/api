@@ -2,18 +2,21 @@ from typing import Any, Mapping
 
 import orjson
 import os
+import logging
 from django.conf import settings
 from django.http import HttpRequest
 from ninja import NinjaAPI, Swagger
 from ninja.errors import ValidationError, HttpError
 from ninja.renderers import JSONRenderer, BaseRenderer
 from django_starter_core.apis import router
-from apps.account.apis import router as account_router
-from apps.billing.apis import router as billing_router
-from apps.demo.apis import router as demo_router
 from apps.health.apis import router as health_router
-from apps.integrations.apis import router as integrations_router
-import logging
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
 class ORJSONRenderer(JSONRenderer):
@@ -94,7 +97,19 @@ if not _core_prefix:
 
 api.add_router(_core_prefix, router)
 api.add_router('health', health_router)
-api.add_router('account', account_router)
-api.add_router('billing', billing_router)
-api.add_router('demo', demo_router)
-api.add_router('integrations', integrations_router)
+
+if _env_bool("DJANGO_STARTER_ENABLE_ACCOUNT_API", True):
+    from apps.account.apis import router as account_router
+    api.add_router('account', account_router)
+
+if _env_bool("DJANGO_STARTER_ENABLE_BILLING_API", True):
+    from apps.billing.apis import router as billing_router
+    api.add_router('billing', billing_router)
+
+if _env_bool("DJANGO_STARTER_ENABLE_DEMO_API", True):
+    from apps.demo.apis import router as demo_router
+    api.add_router('demo', demo_router)
+
+if _env_bool("DJANGO_STARTER_ENABLE_INTEGRATIONS_API", True):
+    from apps.integrations.apis import router as integrations_router
+    api.add_router('integrations', integrations_router)

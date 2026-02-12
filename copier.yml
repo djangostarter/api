@@ -56,6 +56,74 @@ api_prefix:
   help: API 路由前缀（对应 /api/<prefix>/...；用于 DjangoStarter Core 路由挂载）
   default: "django-starter"
 
+enable_account_api:
+  type: bool
+  help: 是否启用 account API 路由（/api/account/...）
+  default: true
+
+enable_billing_api:
+  type: bool
+  help: 是否启用 billing API 路由（/api/billing/...）
+  default: true
+
+enable_demo_api:
+  type: bool
+  help: 是否启用 demo API 路由（/api/demo/...）
+  default: true
+
+enable_integrations_api:
+  type: bool
+  help: 是否启用 integrations API 路由（/api/integrations/...）
+  default: true
+
+enable_ninja_docs:
+  type: bool
+  help: 是否默认开启 Swagger UI（可用 DJANGO_NINJA_DOCS_ENABLED 覆盖）
+  default: true
+
+enable_prometheus:
+  type: bool
+  help: 是否默认启用 Prometheus 中间件（可用 PROMETHEUS_ENABLED 覆盖）
+  default: false
+
+database:
+  type: str
+  help: 默认数据库类型（可用 DJANGO_DB_* 环境变量覆盖）
+  choices:
+    SQLite: sqlite
+    PostgreSQL: postgres
+  default: sqlite
+
+postgres_host:
+  type: str
+  help: PostgreSQL 主机（仅当 database=postgres 时生效）
+  default: "127.0.0.1"
+  when: "{{ database == 'postgres' }}"
+
+postgres_port:
+  type: int
+  help: PostgreSQL 端口（仅当 database=postgres 时生效）
+  default: 5432
+  when: "{{ database == 'postgres' }}"
+
+postgres_db:
+  type: str
+  help: PostgreSQL 数据库名（仅当 database=postgres 时生效）
+  default: "{{ package_name|replace('-', '_') }}"
+  when: "{{ database == 'postgres' }}"
+
+postgres_user:
+  type: str
+  help: PostgreSQL 用户名（仅当 database=postgres 时生效）
+  default: "postgres"
+  when: "{{ database == 'postgres' }}"
+
+postgres_password:
+  type: str
+  help: PostgreSQL 密码（仅当 database=postgres 时生效）
+  default: ""
+  when: "{{ database == 'postgres' }}"
+
 use_local_core:
   type: bool
   help: 是否启用 uv 的本地路径 editable 覆盖（便于在同一工作区联调 django-starter-core）

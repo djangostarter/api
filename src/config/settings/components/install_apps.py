@@ -1,4 +1,18 @@
+import os
 from typing import Tuple
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+_enable_account = _env_bool("DJANGO_STARTER_ENABLE_ACCOUNT_API", True)
+_enable_billing = _env_bool("DJANGO_STARTER_ENABLE_BILLING_API", True)
+_enable_demo = _env_bool("DJANGO_STARTER_ENABLE_DEMO_API", True)
+_enable_integrations = _env_bool("DJANGO_STARTER_ENABLE_INTEGRATIONS_API", True)
 
 # 应用定义
 INSTALLED_APPS: Tuple[str, ...] = (
@@ -36,9 +50,17 @@ INSTALLED_APPS: Tuple[str, ...] = (
     'simple_history',
 
     # 我们自己的应用
-    'apps.account.apps.AccountConfig',
-    'apps.billing.apps.BillingConfig',
-    'apps.demo',
     'apps.health.apps.HealthConfig',
-    'apps.integrations.apps.IntegrationsConfig',
 )
+
+if _enable_account:
+    INSTALLED_APPS = INSTALLED_APPS + ('apps.account.apps.AccountConfig',)
+
+if _enable_billing:
+    INSTALLED_APPS = INSTALLED_APPS + ('apps.billing.apps.BillingConfig',)
+
+if _enable_demo:
+    INSTALLED_APPS = INSTALLED_APPS + ('apps.demo',)
+
+if _enable_integrations:
+    INSTALLED_APPS = INSTALLED_APPS + ('apps.integrations.apps.IntegrationsConfig',)

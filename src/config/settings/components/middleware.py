@@ -1,6 +1,14 @@
 import os
 from typing import Tuple
 
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
 MIDDLEWARE: Tuple[str, ...] = (
     'django.middleware.security.SecurityMiddleware',
     'infra.middleware.request_id.RequestIdMiddleware',
@@ -17,5 +25,5 @@ MIDDLEWARE: Tuple[str, ...] = (
     'simple_history.middleware.HistoryRequestMiddleware',
 )
 
-if os.environ.get('PROMETHEUS_ENABLED', 'false') == 'true':
+if _env_bool('PROMETHEUS_ENABLED', False):
     MIDDLEWARE = MIDDLEWARE + ('infra.middleware.prometheus.PrometheusMiddleware',)
