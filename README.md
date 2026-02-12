@@ -152,7 +152,13 @@ django-starter-core = { path = "../django-starter-core", editable = true }
 ## 运行测试
 
 ```bash
-uv run python -m pytest
+uv run pytest
+```
+
+也可以使用项目内置的快捷入口（更好记）：
+
+```bash
+uv run ds-test
 ```
 
 ## 基本检查
