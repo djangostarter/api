@@ -13,8 +13,6 @@ _exclude:
   - "dist"
   - "uv.lock"
   - "copier.yml"
-  - "README.md"
-  - "pyproject.toml"
 
 project_title:
   type: str
